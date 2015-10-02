@@ -23,7 +23,7 @@ namespace Cocoon.HttpAPI.Tests
 
         }
 
-        [EndPointMethod(ResponseFormat: SerializationFormat.JSON)]
+        [EndPointMethod]
         public object test1(
             [QueryParam]string a,
             [QueryParam]string b,
@@ -38,7 +38,7 @@ namespace Cocoon.HttpAPI.Tests
 
         }
 
-        [EndPointMethod(ResponseFormat: SerializationFormat.JSON)]
+        [EndPointMethod]
         public TestModel test2([QueryParam(IsModel: true)]TestModel model)
         {
 
@@ -54,7 +54,7 @@ namespace Cocoon.HttpAPI.Tests
 
         }
 
-        [EndPointMethod(ResponseFormat: SerializationFormat.JSON)]
+        [EndPointMethod]
         public TestModel test3([PayloadParam]TestModel model)
         {
 
@@ -67,7 +67,7 @@ namespace Cocoon.HttpAPI.Tests
 
         }
 
-        [EndPointMethod(ResponseFormat: SerializationFormat.None)]
+        [EndPointMethod]
         public void test4([FileParam]HttpPostedFile file)
         {
 
