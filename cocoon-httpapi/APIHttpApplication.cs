@@ -10,12 +10,16 @@ namespace Cocoon.HttpAPI
     public class APIHttpApplication : HttpApplication
     {
 
+        internal static bool registered = false;
         internal static Dictionary<string, MethodInfo> endPointMethods = new Dictionary<string, MethodInfo>();
 
         public static List<string> SpecialPrefixList = new List<string>() { "handler", "controller" };
 
         protected void RegisterAPI(Assembly websiteAssembly)
         {
+
+            if (registered)
+                return;
 
             //find rest endpoint classes in assembly
             foreach (Type type in websiteAssembly.GetTypes())
@@ -68,6 +72,8 @@ namespace Cocoon.HttpAPI
 
                 }
             }
+
+            registered = true;
 
         }
 

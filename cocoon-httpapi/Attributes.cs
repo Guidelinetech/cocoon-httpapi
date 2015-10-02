@@ -38,12 +38,13 @@ namespace Cocoon.HttpAPI.Attributes
     {
 
         internal string overrideParamName;
+        internal SerializationFormat dataFormat;
   
-        public PayloadParam(string OverrideParamName = null)
+        public PayloadParam(string OverrideParamName = null, SerializationFormat DataFormat = SerializationFormat.None)
         {
 
             overrideParamName = OverrideParamName;
-
+            dataFormat = DataFormat;
         }
 
     }
@@ -106,7 +107,7 @@ namespace Cocoon.HttpAPI.Attributes
 
         public EndPointMethod(
             string RouteOverride = null,
-            SerializationFormat ResponseFormat = SerializationFormat.TextPlain
+            SerializationFormat ResponseFormat = SerializationFormat.JSON
         )
         {
             routeOverride = RouteOverride;
@@ -119,7 +120,7 @@ namespace Cocoon.HttpAPI.Attributes
         None,
         JSON,
         XML,
-        TextPlain
+        Text
     }
     
 }

@@ -5,7 +5,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
-using System.Web;
 using System.Xml.Serialization;
 
 namespace Cocoon.HttpAPI
@@ -16,14 +15,14 @@ namespace Cocoon.HttpAPI
         public static object ChangeType(object value, Type conversionType)
         {
 
+            if (value == null)
+                return null;
+
+            if (value.GetType() == conversionType)
+                return value;
+
             if (conversionType.IsGenericType && conversionType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
-            {
-                if (value == null)
-                    return null;
-
                 conversionType = Nullable.GetUnderlyingType(conversionType);
-
-            }
             
             return TypeDescriptor.GetConverter(conversionType).ConvertFrom(value);// Convert.ChangeType(value, conversionType);
 

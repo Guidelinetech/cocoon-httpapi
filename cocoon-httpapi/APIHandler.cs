@@ -47,6 +47,12 @@ namespace Cocoon.HttpAPI
                 try
                 {
 
+                    if(arg.ParameterType == typeof(HttpContext))
+                    {
+                        parameters.Add(httpContext);
+                        continue;
+                    }
+
                     //query param
                     if (queryParam != null)
                     {
@@ -73,14 +79,26 @@ namespace Cocoon.HttpAPI
                     if (payloadParam != null && httpContext.Request.InputStream.Length > 0)
                     {
 
-                        string payload = new StreamReader(httpContext.Request.InputStream).ReadToEnd().Trim();
+                        string contentType = context.Request.ContentType.ToLower();
 
-                        if (context.Request.ContentType == "application/json")
-                            parameters.Add(Utilities.DeserializeJSON(payload, arg.ParameterType));
-                        else if (context.Request.ContentType == "application/json")
-                            parameters.Add(Utilities.DeserializeXML(payload, arg.ParameterType));
+                        if (contentType.StartsWith("text/") || payloadParam.dataFormat == SerializationFormat.Text)
+                            parameters.Add(Utilities.ChangeType(getStringPayload(), arg.ParameterType));
+                        else if (contentType == "application/json" || payloadParam.dataFormat == SerializationFormat.JSON)
+                            parameters.Add(Utilities.DeserializeJSON(getStringPayload(), arg.ParameterType));
+                        else if (contentType == "application/xml" || payloadParam.dataFormat == SerializationFormat.XML)
+                            parameters.Add(Utilities.DeserializeXML(getStringPayload(), arg.ParameterType));
                         else
-                            parameters.Add(Utilities.ChangeType(payload, arg.ParameterType));
+                        {
+
+                            if (arg.ParameterType == typeof(string))
+                                parameters.Add(Utilities.ChangeType(getStringPayload(), arg.ParameterType));
+                            else if (arg.ParameterType == typeof(byte[]))
+                                using (var reader = new BinaryReader(httpContext.Request.InputStream))
+                                    parameters.Add(reader.ReadBytes(context.Request.ContentLength));
+                            else if (arg.ParameterType == typeof(Stream))
+                                parameters.Add(context.Request.InputStream);
+
+                        }
 
                         continue;
 
@@ -155,7 +173,7 @@ namespace Cocoon.HttpAPI
 
 
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
 
                     //add default parameter if there's an error
@@ -181,7 +199,7 @@ namespace Cocoon.HttpAPI
             switch (methodAttr.responseFormat)
             {
 
-                case SerializationFormat.TextPlain:
+                case SerializationFormat.Text:
 
                     httpContext.Response.ContentType = "text/plain";
                     httpContext.Response.Write((string)response);
@@ -205,7 +223,13 @@ namespace Cocoon.HttpAPI
             }
         }
 
+        private string getStringPayload()
+        {
 
+            using (var reader = new StreamReader(httpContext.Request.InputStream))
+                return reader.ReadToEnd().Trim();
+
+        }
 
     }
 }
