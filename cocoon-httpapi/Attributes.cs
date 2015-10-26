@@ -104,14 +104,17 @@ namespace Cocoon.HttpAPI.Attributes
 
         internal string routeOverride;
         internal SerializationFormat responseFormat;
+        internal bool compressResponse;
 
         public EndPointMethod(
             string RouteOverride = null,
-            SerializationFormat ResponseFormat = SerializationFormat.JSON
+            SerializationFormat ResponseFormat = SerializationFormat.JSON,
+            bool CompressResponse = false
         )
         {
             routeOverride = RouteOverride;
             responseFormat = ResponseFormat;
+            compressResponse = CompressResponse;
         }
     }
 

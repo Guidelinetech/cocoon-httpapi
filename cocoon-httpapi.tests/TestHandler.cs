@@ -70,8 +70,8 @@ namespace Cocoon.HttpAPI.Tests
         [EndPointMethod]
         public void test4([FileParam]HttpPostedFile file)
         {
-
-            file.SaveAs(httpContext.Server.MapPath("~/" + file.FileName));
+            
+            file.SaveAs(HttpContext.Current.Server.MapPath("~/" + file.FileName));
 
         }
 

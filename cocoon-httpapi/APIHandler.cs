@@ -11,20 +11,17 @@ namespace Cocoon.HttpAPI
     public class APIHandler : IHttpHandler
     {
 
+        internal APIHttpApplication app;
+
         public bool IsReusable { get { return false; } }
-
-        public HttpContext httpContext;
-
-        public void ProcessRequest(HttpContext context)
+        
+        public virtual void ProcessRequest(HttpContext context)
         {
 
             //determine if this route is mapped to an endpoint
             if (!APIHttpApplication.endPointMethods.ContainsKey(context.Request.Path.ToLower()))
                 return;
-
-            //save context for endpoint
-            httpContext = context;
-
+            
             //get method into
             MethodInfo method = APIHttpApplication.endPointMethods[context.Request.Path.ToLower()];
             EndPointMethod methodAttr = method.GetCustomAttribute<EndPointMethod>();
@@ -44,12 +41,12 @@ namespace Cocoon.HttpAPI
                 FormParam formParam = arg.GetCustomAttribute<FormParam>();
                 FileParam fileParam = arg.GetCustomAttribute<FileParam>();
 
-                try
-                {
+                //try
+                //{
 
                     if(arg.ParameterType == typeof(HttpContext))
                     {
-                        parameters.Add(httpContext);
+                        parameters.Add(context);
                         continue;
                     }
 
@@ -76,24 +73,25 @@ namespace Cocoon.HttpAPI
                     }
 
                     //is a request with a payload to deserialize
-                    if (payloadParam != null && httpContext.Request.InputStream.Length > 0)
+                    if (payloadParam != null && context.Request.InputStream.Length > 0)
                     {
 
                         string contentType = context.Request.ContentType.ToLower();
+                        bool compressed = contentType.EndsWith("-compressed");
 
                         if (contentType.StartsWith("text/") || payloadParam.dataFormat == SerializationFormat.Text)
-                            parameters.Add(Utilities.ChangeType(getStringPayload(), arg.ParameterType));
+                            parameters.Add(Utilities.ChangeType(getStringPayload(context, compressed), arg.ParameterType));
                         else if (contentType == "application/json" || payloadParam.dataFormat == SerializationFormat.JSON)
-                            parameters.Add(Utilities.DeserializeJSON(getStringPayload(), arg.ParameterType));
+                            parameters.Add(Utilities.DeserializeJSON(getStringPayload(context, compressed), arg.ParameterType));
                         else if (contentType == "application/xml" || payloadParam.dataFormat == SerializationFormat.XML)
-                            parameters.Add(Utilities.DeserializeXML(getStringPayload(), arg.ParameterType));
+                            parameters.Add(Utilities.DeserializeXML(getStringPayload(context, compressed), arg.ParameterType));
                         else
                         {
 
                             if (arg.ParameterType == typeof(string))
-                                parameters.Add(Utilities.ChangeType(getStringPayload(), arg.ParameterType));
+                                parameters.Add(Utilities.ChangeType(getStringPayload(context, compressed), arg.ParameterType));
                             else if (arg.ParameterType == typeof(byte[]))
-                                using (var reader = new BinaryReader(httpContext.Request.InputStream))
+                                using (var reader = new BinaryReader(context.Request.InputStream))
                                     parameters.Add(reader.ReadBytes(context.Request.ContentLength));
                             else if (arg.ParameterType == typeof(Stream))
                                 parameters.Add(context.Request.InputStream);
@@ -172,19 +170,19 @@ namespace Cocoon.HttpAPI
                         parameters.Add(null);
 
 
-                }
-                catch (Exception ex)
-                {
+                //}
+                //catch (Exception ex)
+                //{
 
-                    //add default parameter if there's an error
-                    if (arg.ParameterType.IsValueType)
-                        parameters.Add(Activator.CreateInstance(arg.ParameterType));
-                    else
-                        parameters.Add(null);
+                //    //add default parameter if there's an error
+                //    if (arg.ParameterType.IsValueType)
+                //        parameters.Add(Activator.CreateInstance(arg.ParameterType));
+                //    else
+                //        parameters.Add(null);
 
-                    throw ex;
+                //    throw ex;
 
-                }
+                //}
 
             }
 
@@ -201,33 +199,51 @@ namespace Cocoon.HttpAPI
 
                 case SerializationFormat.Text:
 
-                    httpContext.Response.ContentType = "text/plain";
-                    httpContext.Response.Write((string)response);
+                    string txt = (string)response;
+
+                    if (methodAttr.compressResponse)
+                        SetResponse(context, app.CompressString(txt), "text/plain-compressed");
+                    else
+                        SetResponse(context, txt, "text/plain");
 
                     break;
 
                 case SerializationFormat.JSON:
 
-                    httpContext.Response.ContentType = "application/json";
-                    httpContext.Response.Write(JsonConvert.SerializeObject(response));
+                    string json = JsonConvert.SerializeObject(response);
+                    if (methodAttr.compressResponse)
+                        SetResponse(context, app.CompressString(json), "application/json-compressed");
+                    else
+                        SetResponse(context, json, "application/json");
 
                     break;
 
                 case SerializationFormat.XML:
 
-                    httpContext.Response.ContentType = "application/xml";
-                    httpContext.Response.Write(Utilities.SerializeXML(response, method.ReturnType));
-
+                    string xml = Utilities.SerializeXML(response, method.ReturnType);
+                    if (methodAttr.compressResponse)
+                        SetResponse(context, app.CompressString(xml), "application/xml-compressed");
+                    else
+                        SetResponse(context, xml, "application/xml");
+                    
                     break;
-
+                    
             }
         }
 
-        private string getStringPayload()
+        private void SetResponse(HttpContext context, object Response, string ContentType)
         {
 
-            using (var reader = new StreamReader(httpContext.Request.InputStream))
-                return reader.ReadToEnd().Trim();
+            context.Response.ContentType = ContentType;
+            context.Response.Write(Response);
+
+        }
+
+        private string getStringPayload(HttpContext context, bool compressed)
+        {
+
+            using (var reader = new StreamReader(context.Request.InputStream))
+                return compressed ? app.DecompressString(reader.ReadToEnd().Trim()) : reader.ReadToEnd().Trim();
 
         }
 

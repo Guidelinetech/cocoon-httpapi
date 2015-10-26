@@ -15,12 +15,17 @@ namespace Cocoon.HttpAPI
 
         public static List<string> SpecialPrefixList = new List<string>() { "handler", "controller" };
 
-        protected void RegisterAPI(Assembly websiteAssembly)
+        protected void RegisterAPI(string apiBaseRoute = null)
+        {
+            RegisterAPI(Assembly.GetCallingAssembly(), apiBaseRoute);
+        }
+
+        protected void RegisterAPI(Assembly websiteAssembly, string apiBaseRoute = null)
         {
 
             if (registered)
                 return;
-
+            
             //find rest endpoint classes in assembly
             foreach (Type type in websiteAssembly.GetTypes())
             {
@@ -43,6 +48,8 @@ namespace Cocoon.HttpAPI
 
                     //create the handler
                     APIHandler httpHandler = (APIHandler)Activator.CreateInstance(type);
+                    httpHandler.app = this;
+
                     APIRouteHandler routeHandler = new APIRouteHandler(httpHandler);
 
                     //find endpoint methods
@@ -53,12 +60,15 @@ namespace Cocoon.HttpAPI
                         EndPointMethod restMethod = method.GetCustomAttribute<EndPointMethod>(true);
                         if (restMethod != null)
                         {
-
+                            
                             //get second part of route
                             string route = string.Format("{0}/{1}", baseRoute, method.Name);
                             if (!string.IsNullOrEmpty(restMethod.routeOverride))
                                 route = restMethod.routeOverride;
                             route = route.ToLower();
+
+                            if (!string.IsNullOrEmpty(apiBaseRoute))
+                                route = string.Format("{0}/{1}", apiBaseRoute, route);
 
                             //add to route table
                             RouteTable.Routes.Add(new Route(route, routeHandler));
@@ -74,6 +84,20 @@ namespace Cocoon.HttpAPI
             }
 
             registered = true;
+
+        }
+
+        public virtual string CompressString(string str)
+        {
+
+            throw new NotImplementedException();
+
+        }
+
+        public virtual string DecompressString(string base64Str)
+        {
+
+            throw new NotImplementedException();
 
         }
 

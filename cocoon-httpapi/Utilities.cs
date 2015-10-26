@@ -4,7 +4,9 @@ using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
+using System.IO.Compression;
 using System.Reflection;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace Cocoon.HttpAPI
@@ -75,6 +77,6 @@ namespace Cocoon.HttpAPI
             }
 
         }
-
+        
     }
 }
