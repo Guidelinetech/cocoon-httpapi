@@ -18,7 +18,10 @@ namespace Cocoon.HttpAPI
         {
 
             if (value == null)
-                return null;
+                if (conversionType.IsValueType)
+                    return Activator.CreateInstance(conversionType);
+                else
+                    return null;
 
             if (value.GetType() == conversionType)
                 return value;
@@ -33,6 +36,7 @@ namespace Cocoon.HttpAPI
             catch
             {
                 return Convert.ChangeType(value, conversionType);
+
             }
 
         }
@@ -41,7 +45,7 @@ namespace Cocoon.HttpAPI
         {
             object obj = Activator.CreateInstance(type);
             PropertyInfo[] props = type.GetProperties();
-           
+
             foreach (PropertyInfo prop in props)
             {
 
@@ -84,6 +88,6 @@ namespace Cocoon.HttpAPI
             }
 
         }
-        
+
     }
 }
