@@ -1,2 +1,2 @@
 # cocoon-httpapi
-Simple to use HTTP API
+Simple to use C# HTTP API
