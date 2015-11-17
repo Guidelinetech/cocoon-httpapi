@@ -25,8 +25,15 @@ namespace Cocoon.HttpAPI
 
             if (conversionType.IsGenericType && conversionType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
                 conversionType = Nullable.GetUnderlyingType(conversionType);
-            
-            return TypeDescriptor.GetConverter(conversionType).ConvertFrom(value);// Convert.ChangeType(value, conversionType);
+
+            try
+            {
+                return TypeDescriptor.GetConverter(conversionType).ConvertFrom(value);
+            }
+            catch
+            {
+                return Convert.ChangeType(value, conversionType);
+            }
 
         }
 
