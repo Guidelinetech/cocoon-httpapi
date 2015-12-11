@@ -54,7 +54,7 @@ namespace Cocoon.HttpAPI.Tests
 
         }
 
-        [EndPointMethod]
+        [EndPointMethod("application/json-compressed")]
         public TestModel test3([PayloadParam]TestModel model)
         {
 

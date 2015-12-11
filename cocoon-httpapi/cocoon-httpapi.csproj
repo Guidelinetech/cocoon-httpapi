@@ -49,6 +49,7 @@
     <Compile Include="APIHttpApplication.cs" />
     <Compile Include="APIRouteHandler.cs" />
     <Compile Include="Attributes.cs" />
+    <Compile Include="MimeTypeHandlers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities.cs" />
   </ItemGroup>

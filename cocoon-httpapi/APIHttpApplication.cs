@@ -1,19 +1,20 @@
-﻿using Cocoon.HttpAPI.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Web;
 using System.Web.Routing;
+using Cocoon.HttpAPI.Attributes;
 
 namespace Cocoon.HttpAPI
 {
     public class APIHttpApplication : HttpApplication
     {
 
-        internal static bool registered = false;
-        internal static Dictionary<string, MethodInfo> endPointMethods = new Dictionary<string, MethodInfo>();
+        internal bool registered = false;
+        internal Dictionary<string, MethodInfo> endPointMethods = new Dictionary<string, MethodInfo>();
+        internal Dictionary<string, MimeTypeHandler> mimeTypeHandlers = new Dictionary<string, MimeTypeHandler>();
 
-        public static List<string> SpecialPrefixList = new List<string>() { "handler", "controller" };
+        public List<string> SpecialPrefixList = new List<string>() { "handler", "controller" };
 
         protected void RegisterAPI(string apiBaseRoute = null)
         {
@@ -83,6 +84,13 @@ namespace Cocoon.HttpAPI
                 }
             }
 
+            SetMimeTypeHandler(new JsonMimeTypeHandler());
+            SetMimeTypeHandler(new JsonCompressedMimeTypeHandler());
+            SetMimeTypeHandler(new XmlMimeTypeHandler());
+            SetMimeTypeHandler(new XmlCompressedMimeTypeHandler());
+            SetMimeTypeHandler(new TextPlainMimeTypeHandler());
+            SetMimeTypeHandler(new TextPlainCompressedMimeTypeHandler());
+
             registered = true;
 
         }
@@ -101,5 +109,18 @@ namespace Cocoon.HttpAPI
 
         }
 
+        public void SetMimeTypeHandler(MimeTypeHandler handler)
+        {
+
+            handler.httpApplication = this;
+
+            if (mimeTypeHandlers.ContainsKey(handler.MimeType))
+                mimeTypeHandlers[handler.MimeType] = handler;
+            else
+                mimeTypeHandlers.Add(handler.MimeType, handler);
+
+        }
+
     }
+    
 }

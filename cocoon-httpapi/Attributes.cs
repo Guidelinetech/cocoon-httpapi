@@ -38,13 +38,14 @@ namespace Cocoon.HttpAPI.Attributes
     {
 
         internal string overrideParamName;
-        internal SerializationFormat dataFormat;
+        internal string mimeType;
   
-        public PayloadParam(string OverrideParamName = null, SerializationFormat DataFormat = SerializationFormat.None)
+        public PayloadParam(string OverrideParamName = null, string MimeType = null)
         {
 
             overrideParamName = OverrideParamName;
-            dataFormat = DataFormat;
+            mimeType = MimeType;
+
         }
 
     }
@@ -103,27 +104,16 @@ namespace Cocoon.HttpAPI.Attributes
     {
 
         internal string routeOverride;
-        internal SerializationFormat responseFormat;
-        internal bool compressResponse;
+        internal string responseMimeType;
 
-        public EndPointMethod(
-            string RouteOverride = null,
-            SerializationFormat ResponseFormat = SerializationFormat.JSON,
-            bool CompressResponse = false
-        )
+        public EndPointMethod(string RouteOverride = null, string ResponseMimeType = "application/json")
         {
-            routeOverride = RouteOverride;
-            responseFormat = ResponseFormat;
-            compressResponse = CompressResponse;
-        }
-    }
 
-    public enum SerializationFormat
-    {
-        None,
-        JSON,
-        XML,
-        Text
+            responseMimeType = ResponseMimeType.ToLower().Trim();
+            routeOverride = RouteOverride;
+
+        }
+
     }
     
 }

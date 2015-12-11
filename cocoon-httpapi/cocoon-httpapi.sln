@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cocoon-httpapi", "cocoon-httpapi.csproj", "{AF4412B0-CA47-442B-BD92-7F39F32D3854}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cocoon-httpapi.tests", "..\cocoon-httpapi.tests\cocoon-httpapi.tests.csproj", "{4E384BC9-8124-4D5B-8CDF-115DD5E5BC7B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{AF4412B0-CA47-442B-BD92-7F39F32D3854} = {AF4412B0-CA47-442B-BD92-7F39F32D3854}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
