@@ -84,10 +84,6 @@ namespace Cocoon.HttpAPI
                 }
             }
 
-            SetMimeTypeHandler(new JsonMimeTypeHandler());
-            SetMimeTypeHandler(new JsonCompressedMimeTypeHandler());
-            SetMimeTypeHandler(new XmlMimeTypeHandler());
-            SetMimeTypeHandler(new XmlCompressedMimeTypeHandler());
             SetMimeTypeHandler(new TextPlainMimeTypeHandler());
             SetMimeTypeHandler(new TextPlainCompressedMimeTypeHandler());
 
