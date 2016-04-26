@@ -191,9 +191,12 @@ namespace Cocoon.HttpAPI
             MimeTypeHandler responseMimeHandler = app.mimeTypeHandlers[methodAttr.responseMimeType];
             
             byte[] bytes = responseMimeHandler.Serialize(response, method.ReturnType);
-            context.Response.OutputStream.Write(bytes, 0, bytes.Length);
+
+            context.Response.Clear();
             context.Response.ContentType = methodAttr.responseMimeType;
-            
+            context.Response.OutputStream.Write(bytes, 0, bytes.Length);
+            context.Response.End();
+
         }
 
         private void SetResponse(HttpContext context, object Response, string ContentType)

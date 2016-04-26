@@ -1,7 +1,6 @@
-﻿using Cocoon.HttpAPI.Attributes;
-using System;
-using System.IO;
+﻿using System;
 using System.Web;
+using Cocoon.HttpAPI.Attributes;
 
 namespace Cocoon.HttpAPI.Tests
 {
