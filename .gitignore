@@ -1,5 +1,5 @@
-/cocoon-httpapi/bin
-/cocoon-httpapi/obj
-/cocoon-httpapi.tests/obj
-/cocoon-httpapi.tests/bin
-/cocoon-httpapi/.vs
+bin
+obj
+
+/cocoon-httpapi.tests
+.vs
